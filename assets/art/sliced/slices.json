@@ -1,0 +1,917 @@
+[
+  {
+    "sheet": "alice-parts",
+    "file": "alice-head.png",
+    "box": [
+      45,
+      17,
+      255,
+      266
+    ],
+    "size": [
+      259,
+      270
+    ],
+    "area": 48231
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-hair-a.png",
+    "box": [
+      385,
+      78,
+      196,
+      181
+    ],
+    "size": [
+      200,
+      185
+    ],
+    "area": 19995
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-hair-b.png",
+    "box": [
+      704,
+      77,
+      196,
+      181
+    ],
+    "size": [
+      200,
+      185
+    ],
+    "area": 20525
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-body.png",
+    "box": [
+      51,
+      308,
+      210,
+      191
+    ],
+    "size": [
+      214,
+      195
+    ],
+    "area": 26063
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-arm-upper-a.png",
+    "box": [
+      664,
+      290,
+      79,
+      117
+    ],
+    "size": [
+      83,
+      121
+    ],
+    "area": 6858
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-arm-upper-b.png",
+    "box": [
+      668,
+      424,
+      115,
+      101
+    ],
+    "size": [
+      119,
+      105
+    ],
+    "area": 6942
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-arm-lower-open.png",
+    "box": [
+      807,
+      303,
+      168,
+      71
+    ],
+    "size": [
+      172,
+      75
+    ],
+    "area": 7377
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-arm-lower-fist.png",
+    "box": [
+      813,
+      434,
+      142,
+      69
+    ],
+    "size": [
+      146,
+      73
+    ],
+    "area": 6333
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-skirt.png",
+    "box": [
+      262,
+      307,
+      371,
+      301
+    ],
+    "size": [
+      375,
+      305
+    ],
+    "area": 74563
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-leg-lower-a.png",
+    "box": [
+      597,
+      567,
+      90,
+      180
+    ],
+    "size": [
+      94,
+      184
+    ],
+    "area": 10734
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-leg-lower-b.png",
+    "box": [
+      741,
+      566,
+      89,
+      178
+    ],
+    "size": [
+      93,
+      182
+    ],
+    "area": 10510
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-wand.png",
+    "box": [
+      888,
+      534,
+      81,
+      208
+    ],
+    "size": [
+      85,
+      212
+    ],
+    "area": 7747
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-head-cheer.png",
+    "box": [
+      21,
+      735,
+      272,
+      232
+    ],
+    "size": [
+      276,
+      236
+    ],
+    "area": 43206
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-head-oh.png",
+    "box": [
+      338,
+      739,
+      271,
+      230
+    ],
+    "size": [
+      275,
+      234
+    ],
+    "area": 42789
+  },
+  {
+    "sheet": "alice-parts",
+    "file": "alice-head-grit.png",
+    "box": [
+      665,
+      744,
+      279,
+      231
+    ],
+    "size": [
+      283,
+      235
+    ],
+    "area": 43473
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "cloud-grumpy.png",
+    "box": [
+      39,
+      19,
+      253,
+      262
+    ],
+    "size": [
+      257,
+      266
+    ],
+    "area": 44380
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "cloud-oh.png",
+    "box": [
+      332,
+      27,
+      268,
+      254
+    ],
+    "size": [
+      272,
+      258
+    ],
+    "area": 44398
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "cloud-cry.png",
+    "box": [
+      637,
+      19,
+      238,
+      271
+    ],
+    "size": [
+      242,
+      275
+    ],
+    "area": 37954
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "star-spin-1.png",
+    "box": [
+      927,
+      100,
+      132,
+      134
+    ],
+    "size": [
+      136,
+      138
+    ],
+    "area": 13880
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "star-spin-2.png",
+    "box": [
+      1099,
+      100,
+      102,
+      134
+    ],
+    "size": [
+      106,
+      138
+    ],
+    "area": 10911
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "star-spin-3.png",
+    "box": [
+      1244,
+      101,
+      49,
+      133
+    ],
+    "size": [
+      53,
+      137
+    ],
+    "area": 5526
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "shard.png",
+    "box": [
+      72,
+      330,
+      65,
+      140
+    ],
+    "size": [
+      69,
+      144
+    ],
+    "area": 6254
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "star-crystal.png",
+    "box": [
+      229,
+      312,
+      175,
+      164
+    ],
+    "size": [
+      179,
+      168
+    ],
+    "area": 19632
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "flag-grey.png",
+    "box": [
+      523,
+      306,
+      176,
+      223
+    ],
+    "size": [
+      180,
+      227
+    ],
+    "area": 14259
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "flag-orange.png",
+    "box": [
+      773,
+      306,
+      175,
+      223
+    ],
+    "size": [
+      179,
+      227
+    ],
+    "area": 14142
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "bubble.png",
+    "box": [
+      1040,
+      312,
+      186,
+      186
+    ],
+    "size": [
+      190,
+      190
+    ],
+    "area": 8879
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "gate.png",
+    "box": [
+      53,
+      480,
+      382,
+      243
+    ],
+    "size": [
+      386,
+      247
+    ],
+    "area": 61064
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "flowers.png",
+    "box": [
+      615,
+      554,
+      192,
+      164
+    ],
+    "size": [
+      196,
+      168
+    ],
+    "area": 18319
+  },
+  {
+    "sheet": "items-and-enemies",
+    "file": "signpost.png",
+    "box": [
+      986,
+      537,
+      178,
+      184
+    ],
+    "size": [
+      182,
+      188
+    ],
+    "area": 17833
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-head.png",
+    "box": [
+      22,
+      29,
+      308,
+      318
+    ],
+    "size": [
+      312,
+      322
+    ],
+    "area": 66984
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-body.png",
+    "box": [
+      350,
+      99,
+      286,
+      250
+    ],
+    "size": [
+      290,
+      254
+    ],
+    "area": 50542
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-arm-upper-a.png",
+    "box": [
+      670,
+      59,
+      127,
+      160
+    ],
+    "size": [
+      131,
+      164
+    ],
+    "area": 11866
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-arm-lower-a.png",
+    "box": [
+      671,
+      228,
+      103,
+      169
+    ],
+    "size": [
+      107,
+      173
+    ],
+    "area": 10004
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-arm-upper-b.png",
+    "box": [
+      861,
+      60,
+      123,
+      159
+    ],
+    "size": [
+      127,
+      163
+    ],
+    "area": 11780
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-arm-lower-b.png",
+    "box": [
+      877,
+      228,
+      91,
+      174
+    ],
+    "size": [
+      95,
+      178
+    ],
+    "area": 10112
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-leg-upper-a.png",
+    "box": [
+      67,
+      397,
+      143,
+      226
+    ],
+    "size": [
+      147,
+      230
+    ],
+    "area": 22770
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-leg-lower-a.png",
+    "box": [
+      305,
+      396,
+      172,
+      256
+    ],
+    "size": [
+      176,
+      260
+    ],
+    "area": 26054
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-leg-upper-b.png",
+    "box": [
+      576,
+      397,
+      127,
+      228
+    ],
+    "size": [
+      131,
+      232
+    ],
+    "area": 21768
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-leg-lower-b.png",
+    "box": [
+      787,
+      405,
+      183,
+      253
+    ],
+    "size": [
+      187,
+      257
+    ],
+    "area": 26066
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-head-cheer.png",
+    "box": [
+      25,
+      684,
+      295,
+      296
+    ],
+    "size": [
+      299,
+      300
+    ],
+    "area": 59650
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-head-oh.png",
+    "box": [
+      357,
+      685,
+      290,
+      294
+    ],
+    "size": [
+      294,
+      298
+    ],
+    "area": 58665
+  },
+  {
+    "sheet": "owen-parts",
+    "file": "owen-head-grit.png",
+    "box": [
+      687,
+      689,
+      297,
+      293
+    ],
+    "size": [
+      301,
+      297
+    ],
+    "area": 59074
+  },
+  {
+    "sheet": "sidekicks",
+    "file": "jackson-idle.png",
+    "box": [
+      16,
+      104,
+      281,
+      213
+    ],
+    "size": [
+      285,
+      217
+    ],
+    "area": 38036
+  },
+  {
+    "sheet": "sidekicks",
+    "file": "jackson-hop.png",
+    "box": [
+      351,
+      93,
+      260,
+      221
+    ],
+    "size": [
+      264,
+      225
+    ],
+    "area": 34453
+  },
+  {
+    "sheet": "sidekicks",
+    "file": "jackson-dash.png",
+    "box": [
+      652,
+      120,
+      341,
+      196
+    ],
+    "size": [
+      345,
+      200
+    ],
+    "area": 39055
+  },
+  {
+    "sheet": "sidekicks",
+    "file": "jackson-cheer.png",
+    "box": [
+      1050,
+      92,
+      259,
+      225
+    ],
+    "size": [
+      263,
+      229
+    ],
+    "area": 37977
+  },
+  {
+    "sheet": "sidekicks",
+    "file": "aliceson-idle.png",
+    "box": [
+      25,
+      376,
+      214,
+      287
+    ],
+    "size": [
+      218,
+      291
+    ],
+    "area": 39389
+  },
+  {
+    "sheet": "sidekicks",
+    "file": "aliceson-fly.png",
+    "box": [
+      307,
+      397,
+      303,
+      239
+    ],
+    "size": [
+      307,
+      243
+    ],
+    "area": 42588
+  },
+  {
+    "sheet": "sidekicks",
+    "file": "aliceson-float.png",
+    "box": [
+      645,
+      378,
+      344,
+      267
+    ],
+    "size": [
+      348,
+      271
+    ],
+    "area": 42714
+  },
+  {
+    "sheet": "sidekicks",
+    "file": "aliceson-cheer.png",
+    "box": [
+      1031,
+      376,
+      294,
+      303
+    ],
+    "size": [
+      298,
+      307
+    ],
+    "area": 44597
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "platform-s.png",
+    "box": [
+      38,
+      62,
+      203,
+      163
+    ],
+    "size": [
+      207,
+      167
+    ],
+    "area": 19957
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "platform-m.png",
+    "box": [
+      326,
+      61,
+      342,
+      167
+    ],
+    "size": [
+      346,
+      171
+    ],
+    "area": 35702
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "platform-l.png",
+    "box": [
+      754,
+      61,
+      554,
+      168
+    ],
+    "size": [
+      558,
+      172
+    ],
+    "area": 61257
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "bush.png",
+    "box": [
+      38,
+      294,
+      226,
+      207
+    ],
+    "size": [
+      230,
+      211
+    ],
+    "area": 34864
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "tree.png",
+    "box": [
+      315,
+      230,
+      248,
+      272
+    ],
+    "size": [
+      252,
+      276
+    ],
+    "area": 40556
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "grass.png",
+    "box": [
+      600,
+      309,
+      192,
+      186
+    ],
+    "size": [
+      196,
+      190
+    ],
+    "area": 20737
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "daisies.png",
+    "box": [
+      830,
+      343,
+      213,
+      158
+    ],
+    "size": [
+      217,
+      162
+    ],
+    "area": 21270
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "rock.png",
+    "box": [
+      1081,
+      332,
+      228,
+      169
+    ],
+    "size": [
+      232,
+      173
+    ],
+    "area": 24236
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "ground-cap-left.png",
+    "box": [
+      27,
+      551,
+      157,
+      134
+    ],
+    "size": [
+      161,
+      138
+    ],
+    "area": 15947
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "ground-mid.png",
+    "box": [
+      208,
+      549,
+      929,
+      135
+    ],
+    "size": [
+      933,
+      139
+    ],
+    "area": 107030
+  },
+  {
+    "sheet": "tiles-and-props",
+    "file": "ground-cap-right.png",
+    "box": [
+      1160,
+      550,
+      157,
+      135
+    ],
+    "size": [
+      161,
+      139
+    ],
+    "area": 15999
+  }
+]
