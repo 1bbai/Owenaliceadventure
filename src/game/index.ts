@@ -9,3 +9,5 @@ export * from './level/loadLevel';
 export * from './level/stars';
 export * from './sim/events';
 export * from './sim/heroSim';
+export * from './sim/learning';
+export * from './learning/questions';

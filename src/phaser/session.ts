@@ -10,11 +10,13 @@ export interface Session {
   hero: HeroId;
   track: TrackId;
   sound: boolean;
+  /** Read each new question aloud with the browser's speech synthesis. */
+  speech: boolean;
 }
 
 const KEY = 'owen-alice-adventure.session.v1';
 
-const DEFAULTS: Session = { hero: 'alice', track: 0, sound: true };
+const DEFAULTS: Session = { hero: 'alice', track: 0, sound: true, speech: true };
 
 let current: Session | null = null;
 
@@ -27,6 +29,7 @@ function read(): Session {
       hero: parsed.hero === 'owen' || parsed.hero === 'alice' ? parsed.hero : DEFAULTS.hero,
       track: parsed.track === 0 || parsed.track === 1 || parsed.track === 2 ? parsed.track : DEFAULTS.track,
       sound: typeof parsed.sound === 'boolean' ? parsed.sound : DEFAULTS.sound,
+      speech: typeof parsed.speech === 'boolean' ? parsed.speech : DEFAULTS.speech,
     };
   } catch {
     return { ...DEFAULTS };

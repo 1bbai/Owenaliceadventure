@@ -50,7 +50,7 @@ export function generateStars(level: Omit<Level, 'stars'>): Star[] {
   const gapList = gaps(level);
   for (const seg of level.ground) {
     const from = Math.max(seg.x0 + L.lineMargin, level.startX + L.lineMargin);
-    const to = Math.min(seg.x1 - L.lineMargin, level.questionStartX - L.lineMargin);
+    const to = Math.min(seg.x1 - L.lineMargin, (level.questionStartX ?? level.endX) - L.lineMargin);
     const start = Math.ceil(from / L.lineSpacing) * L.lineSpacing;
     for (let x = start; x <= to; x += L.lineSpacing) {
       const nearGap = gapList.some(

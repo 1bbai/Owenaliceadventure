@@ -31,3 +31,25 @@ export function burst(scene: Phaser.Scene, x: number, y: number, kind: 'flowers'
     });
   }
 }
+
+/** A ring of little stars flying outward: a lock opening or the right bubble grabbed. */
+export function sparkle(scene: Phaser.Scene, x: number, y: number, count = 8, scrollFactor = 1): void {
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.3;
+    const dist = 26 + Math.random() * 26;
+    const bit = scene.add.star(x, y, 5, 2, 5, PALETTE.star).setStrokeStyle(1, PALETTE.starEdge).setDepth(45);
+    bit.setScrollFactor(scrollFactor);
+    scene.tweens.add({
+      targets: bit,
+      x: x + Math.cos(angle) * dist,
+      y: y + Math.sin(angle) * dist,
+      alpha: 0,
+      angle: 120,
+      scaleX: 0.4,
+      scaleY: 0.4,
+      duration: 420 + Math.random() * 180,
+      ease: 'Quad.easeOut',
+      onComplete: () => bit.destroy(),
+    });
+  }
+}

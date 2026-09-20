@@ -1,8 +1,10 @@
 # Owen & Alice's Adventure
 
 A kids' educational auto-running platformer for phones and tablets (landscape,
-ages 4 to 9). One control: tap to jump, hold to jump higher. Built with
-TypeScript, Vite and Phaser 4. No ads, no tracking, no network calls.
+ages 4 to 9). One control: tap to jump, hold to jump higher. Near the end of
+each level questions appear in a banner and the hero jumps into the right
+answer bubble; the game never pauses for a quiz. Built with TypeScript, Vite
+and Phaser 4. No ads, no tracking, no network calls.
 
 See `CLAUDE.md` for the full design brief, tuning numbers, level format and
 working rules.
@@ -24,7 +26,7 @@ npm run preview    # serves dist/ locally
 ## Test and lint
 
 ```bash
-npm test           # Vitest: game rules, level data and the headless completability proof (~30 s)
+npm test           # Vitest: game rules, questions, level data and the headless completability proof (~20 s)
 npm run lint       # ESLint + TypeScript
 npm run check      # lint, test and build in one go; run this before pushing
 ```
@@ -43,7 +45,7 @@ Connect the repository to Netlify (or any static host) and deploy `dist/`.
 
 ## Project layout
 
-- `src/game/` — headless rules: config, tracks, heroes, level loading, star layout, simulation, scoring
+- `src/game/` — headless rules: config, tracks, heroes, level loading, star layout, simulation, questions, scoring
 - `src/data/levels/` — level JSON files
 - `src/phaser/` — scenes, placeholder views, UI, input
 - `src/audio/` — Web Audio sound synth

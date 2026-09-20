@@ -11,10 +11,14 @@ export interface LevelJson {
   index: number;
   /** Where the hero starts (feet on the ground). */
   startX: number;
-  /** Crossing this x finishes the level. */
+  /**
+   * Crossing this x finishes a level that has no question stretch. With one,
+   * the level finishes at the star crystal placed after the gate instead, and
+   * the ground must carry on well past endX.
+   */
   endX: number;
-  /** Where the question stretch begins (prompt 2). Star lines stop here. */
-  questionStartX: number;
+  /** Where the question stretch begins, on flat ground. Star lines stop here. Omit for no questions. */
+  questionStartX?: number;
   /** Ground segments [x0, x1]. Anything not covered is a pit. */
   ground: [number, number][];
   /** One-way floating platforms [x0, x1, y]. */
@@ -79,7 +83,8 @@ export interface Level {
   index: number;
   startX: number;
   endX: number;
-  questionStartX: number;
+  /** null when the level has no question stretch. */
+  questionStartX: number | null;
   ground: GroundSegment[];
   platforms: Platform[];
   checkpoints: Checkpoint[];

@@ -1,15 +1,25 @@
-import { CLOUD, DASH, FLOAT, HERO_BODY, JUMP, PICKUP, PIT, RESPAWN } from '../config';
+import { CLOUD, DASH, FLOAT, HERO_BODY, JUMP, PICKUP, PIT, QUESTIONS, RESPAWN } from '../config';
 import type { HeroDef } from '../heroes';
 import { hasGroundAt, nextGroundStart } from '../level/geometry';
 import type { Cloud, Level } from '../level/types';
 import type { Track } from '../tracks';
 import type { SimEvent } from './events';
+import {
+  cloneLearningState,
+  createLearningState,
+  hasQuestions,
+  inQuestionStretch,
+  stepLearning,
+  type LearningState,
+} from './learning';
 
 /** Everything the simulation needs that does not change during a run. */
 export interface SimWorld {
   readonly level: Level;
   readonly track: Track;
   readonly hero: HeroDef;
+  /** Seed for the question generator. The same seed gives the same questions. */
+  readonly seed?: number;
 }
 
 /** One frame of player input: is the single button held right now? */
@@ -48,6 +58,8 @@ export interface SimState {
   clouds: Uint8Array;
   respawns: number;
   finished: boolean;
+  /** The question stretch (see learning.ts). */
+  learning: LearningState;
 }
 
 export function createSimState(world: SimWorld): SimState {
@@ -78,6 +90,7 @@ export function createSimState(world: SimWorld): SimState {
     clouds: new Uint8Array(level.clouds.length),
     respawns: 0,
     finished: false,
+    learning: createLearningState(world.seed ?? 1),
   };
 }
 
@@ -88,7 +101,13 @@ export function cloneSimState(s: SimState): SimState {
     stars: new Uint8Array(s.stars),
     shards: new Uint8Array(s.shards),
     clouds: new Uint8Array(s.clouds),
+    learning: cloneLearningState(s.learning),
   };
+}
+
+/** Run speed at the hero's current position: reduced from the start of the question stretch. */
+export function runSpeedAt(world: SimWorld, s: SimState): number {
+  return world.track.runSpeed * (inQuestionStretch(world.level, s.x) ? QUESTIONS.speedFactor : 1);
 }
 
 /** Centre y of a cloud at time t (bobbing clouds move up and down). */
@@ -204,7 +223,8 @@ export function stepSim(world: SimWorld, s: SimState, input: SimInput, dt: numbe
   if (s.jumping && s.vy >= 0) s.jumping = false;
 
   const dashing = s.dashTimer > 0;
-  const speed = track.runSpeed * (dashing ? DASH.speedMultiplier : 1);
+  const runSpeed = runSpeedAt(world, s);
+  const speed = runSpeed * (dashing ? DASH.speedMultiplier : 1);
 
   if (dashing) {
     s.vy = 0;
@@ -342,7 +362,15 @@ export function stepSim(world: SimWorld, s: SimState, input: SimInput, dt: numbe
     }
   }
 
-  if (s.x >= level.endX) {
+  // The question stretch: the run never stops. With questions the level ends at the crystal.
+  if (hasQuestions(level)) {
+    const stretchSpeed = track.runSpeed * QUESTIONS.speedFactor;
+    const reachedCrystal = stepLearning(level, s.learning, { track: track.id, x: s.x, y: s.y, speed: stretchSpeed, dt }, events);
+    if (reachedCrystal) {
+      s.finished = true;
+      events.push({ type: 'finish' });
+    }
+  } else if (s.x >= level.endX) {
     s.finished = true;
     events.push({ type: 'finish' });
   }

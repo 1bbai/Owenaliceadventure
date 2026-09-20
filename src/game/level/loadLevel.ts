@@ -10,6 +10,10 @@ export function loadLevel(json: LevelJson): Level {
   assert(typeof json.id === 'string' && json.id.length > 0, 'missing id');
   assert(Array.isArray(json.ground) && json.ground.length > 0, 'needs ground');
   assert(json.endX > json.startX, 'endX must be after startX');
+  const questionStartX = typeof json.questionStartX === 'number' ? json.questionStartX : null;
+  if (questionStartX !== null) {
+    assert(questionStartX > json.startX && questionStartX < json.endX, 'questionStartX must be between startX and endX');
+  }
 
   const ground = json.ground
     .map(([x0, x1]) => {
@@ -36,6 +40,13 @@ export function loadLevel(json: LevelJson): Level {
       return { id, x };
     });
   assert(checkpoints.length > 0, 'needs at least one checkpoint');
+  if (questionStartX !== null) {
+    // The question stretch is flat ground: one segment from the stretch start to past endX.
+    const seg = ground.find((g) => questionStartX >= g.x0 && questionStartX <= g.x1);
+    assert(seg && seg.x1 >= json.endX, 'the question stretch must be one ground segment reaching past endX');
+    assert(json.platforms.every(([x0]) => x0 < questionStartX), 'no platforms in the question stretch');
+    assert(json.clouds.every(([x]) => x < questionStartX), 'no clouds in the question stretch');
+  }
 
   const shards = json.shards.map(([x, y], id) => ({ id, x, y }));
   const clouds = json.clouds.map(([x, y, bobs], id) => ({ id, x, y, bobs: Boolean(bobs) }));
@@ -48,7 +59,7 @@ export function loadLevel(json: LevelJson): Level {
     index: json.index,
     startX: json.startX,
     endX: json.endX,
-    questionStartX: json.questionStartX,
+    questionStartX,
     ground,
     platforms,
     checkpoints,

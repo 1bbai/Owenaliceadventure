@@ -69,6 +69,16 @@ function missedShard(world: SimWorld, s: SimState): boolean {
 type HopOutcome = { kind: 'landed' | 'finished'; state: SimState; inputs: boolean[] } | { kind: 'failed' };
 
 /**
+ * The search goal: the finish for a level without questions, or the start of
+ * the question stretch, from where tests/helpers/learning.ts drives the run.
+ */
+export function goalReached(world: SimWorld, s: SimState): boolean {
+  if (s.finished) return true;
+  const qx = world.level.questionStartX;
+  return qx !== null && s.x >= qx;
+}
+
+/**
  * Simulates one hop from a grounded state: `script` gives the first inputs,
  * after which the button is released. Runs until the hero is grounded again
  * (after having left the ground), the level ends, a respawn happens, or time runs out.
@@ -84,7 +94,7 @@ function hop(world: SimWorld, from: SimState, script: boolean[], dt: number, max
     for (const e of events) {
       if (e.type === 'respawn') return { kind: 'failed' };
     }
-    if (s.finished) return { kind: 'finished', state: s, inputs };
+    if (goalReached(world, s)) return { kind: 'finished', state: s, inputs };
     if (!s.grounded) leftGround = true;
     if (runOnly > 0 && !leftGround && s.x >= from.x + runOnly) return { kind: 'landed', state: s, inputs };
     if (leftGround && s.grounded) return { kind: 'landed', state: s, inputs };

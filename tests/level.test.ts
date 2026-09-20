@@ -43,7 +43,7 @@ describe('World 1 Level 1 data', () => {
     for (const s of level.stars.filter((st) => st.kind === 'line')) {
       expect(s.y).toBe(-30);
       expect(hasGroundAt(level, s.x)).toBe(true);
-      expect(s.x).toBeLessThan(level.questionStartX);
+      expect(s.x).toBeLessThan(level.questionStartX!);
     }
   });
 
@@ -68,5 +68,17 @@ describe('World 1 Level 1 data', () => {
     expect(() => loadLevel(bad)).toThrow(/checkpoint/);
     const overlapping = { ...(w1l1 as LevelJson), ground: [[0, 100], [50, 200]] as [number, number][] };
     expect(() => loadLevel(overlapping)).toThrow(/overlap/);
+  });
+
+  it('keeps the question stretch on flat, empty ground', () => {
+    const json = w1l1 as LevelJson;
+    expect(() => loadLevel({ ...json, questionStartX: 7700 })).toThrow(/questionStartX/);
+    expect(() => loadLevel({ ...json, clouds: [...json.clouds, [7100, -26, false]] })).toThrow(/clouds/);
+    expect(() => loadLevel({ ...json, platforms: [...json.platforms, [7100, 7200, -70]] })).toThrow(/platforms/);
+    const pitInStretch = { ...json, ground: [...json.ground.slice(0, -1), [6180, 7200], [7300, 90000]] as [number, number][] };
+    expect(() => loadLevel(pitInStretch)).toThrow(/one ground segment/);
+    const noQuestions: LevelJson = { ...json };
+    delete noQuestions.questionStartX;
+    expect(loadLevel(noQuestions).questionStartX).toBeNull();
   });
 });

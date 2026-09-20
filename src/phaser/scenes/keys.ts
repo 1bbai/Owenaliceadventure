@@ -1,3 +1,5 @@
+import type { RunOutcome } from '../../game/scoring';
+
 export const SCENES = {
   title: 'TitleScene',
   game: 'GameScene',
@@ -5,11 +7,6 @@ export const SCENES = {
 } as const;
 
 /** Data passed into the result scene. */
-export interface ResultData {
+export interface ResultData extends RunOutcome {
   levelName: string;
-  finished: boolean;
-  shardsFound: number;
-  shardsTotal: number;
-  starsCollected: number;
-  starsTotal: number;
 }

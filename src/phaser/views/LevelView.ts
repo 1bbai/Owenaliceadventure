@@ -9,7 +9,8 @@ export class LevelView {
 
   constructor(scene: Phaser.Scene, level: Level) {
     const g = scene.add.graphics().setDepth(10);
-    const drawEnd = level.endX + 1200;
+    // With a question stretch the level ends at the crystal, however many retries it takes: draw far past endX.
+    const drawEnd = level.endX + (level.questionStartX === null ? 1200 : 20000);
     for (const seg of level.ground) {
       const x0 = seg.x0;
       const x1 = Math.min(seg.x1, drawEnd);
@@ -30,9 +31,11 @@ export class LevelView {
       g.fillStyle(PALETTE.grassLight, 1);
       g.fillRoundedRect(p.x0 + 4, p.y - 4, p.x1 - p.x0 - 8, 5, 2);
     }
-    // Finish line.
-    g.fillStyle(PALETTE.text, 0.15);
-    g.fillRect(level.endX - 3, -140, 6, 140);
+    // Finish line, only for levels without a question stretch (those end at the star crystal).
+    if (level.questionStartX === null) {
+      g.fillStyle(PALETTE.text, 0.15);
+      g.fillRect(level.endX - 3, -140, 6, 140);
+    }
 
     for (const cp of level.checkpoints) {
       const flag = scene.add.graphics({ x: cp.x, y: 0 }).setDepth(11);

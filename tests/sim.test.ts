@@ -9,7 +9,7 @@ import { runFor, runUntil } from './helpers/solver';
 
 const dt = SIM.fixedDt;
 
-/** A tiny test level: flat ground with one pit, one platform, one cloud and a star. */
+/** A tiny test level: flat ground with one pit, one platform, one cloud and a star. No question stretch. */
 function tinyLevel(extra: Partial<LevelJson> = {}): Level {
   return loadLevel({
     id: 'test',
@@ -18,7 +18,6 @@ function tinyLevel(extra: Partial<LevelJson> = {}): Level {
     index: 0,
     startX: 20,
     endX: 2000,
-    questionStartX: 1900,
     ground: [
       [-100, 400],
       [470, 3000],

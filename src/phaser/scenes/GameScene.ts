@@ -1,20 +1,24 @@
 import Phaser from 'phaser';
-import { SIM } from '../../game/config';
+import { QUESTIONS, SIM } from '../../game/config';
 import { getHero, type HeroDef } from '../../game/heroes';
 import { tipAt } from '../../game/level/loadLevel';
 import type { Level } from '../../game/level/types';
 import { loadFirstLevel } from '../../game/levels';
 import type { SimEvent } from '../../game/sim/events';
-import { createSimState, stepSim, type SimState, type SimWorld } from '../../game/sim/heroSim';
+import { createSimState, runSpeedAt, stepSim, type SimState, type SimWorld } from '../../game/sim/heroSim';
 import { getTrack, type Track } from '../../game/tracks';
 import { cameraScrollX, groundScreenY } from '../../game/viewport';
 import { JumpInput } from '../input/JumpInput';
 import { getSession } from '../session';
 import { getSfx } from '../sfx';
+import { speak, stopSpeaking } from '../speech';
 import { Hud } from '../ui/Hud';
+import { QuestionBanner } from '../ui/QuestionBanner';
 import { TipStrip } from '../ui/TipStrip';
+import { BubbleField } from '../views/BubbleView';
 import { burst } from '../views/Burst';
 import { CloudView } from '../views/CloudView';
+import { GateView } from '../views/GateView';
 import { HeroView } from '../views/HeroView';
 import { LevelView } from '../views/LevelView';
 import { Parallax } from '../views/Parallax';
@@ -46,6 +50,9 @@ export class GameScene extends Phaser.Scene {
   private sidekick!: SidekickView;
   private hud!: Hud;
   private tips!: TipStrip;
+  private banner!: QuestionBanner;
+  private bubbles!: BubbleField;
+  private gate!: GateView;
   private ending = false;
 
   constructor() {
@@ -57,7 +64,7 @@ export class GameScene extends Phaser.Scene {
     this.level = loadFirstLevel();
     this.track = getTrack(session.track);
     this.hero = getHero(session.hero);
-    this.world = { level: this.level, track: this.track, hero: this.hero };
+    this.world = { level: this.level, track: this.track, hero: this.hero, seed: Math.floor(Math.random() * 0xffffffff) };
     this.state = createSimState(this.world);
     this.accumulator = 0;
     this.ending = false;
@@ -73,6 +80,9 @@ export class GameScene extends Phaser.Scene {
     this.sidekick.teleport(this.state.x, 0);
     this.hud = new Hud(this, this.level.shards.length, () => this.scene.start(SCENES.title));
     this.tips = new TipStrip(this);
+    this.banner = new QuestionBanner(this);
+    this.bubbles = new BubbleField(this);
+    this.gate = new GateView(this);
     this.input$ = new JumpInput(this);
     this.levelView.reachCheckpoint(0);
 
@@ -80,6 +90,7 @@ export class GameScene extends Phaser.Scene {
     this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);
+      stopSpeaking();
     });
     this.updateCamera();
     this.heroView.sync(this.state, this.track.runSpeed, 0);
@@ -87,6 +98,8 @@ export class GameScene extends Phaser.Scene {
 
   private onResize(): void {
     this.parallax.layout();
+    this.banner.layout();
+    this.hud.setBannerHeight(this.banner.height);
     this.hud.layout();
     this.tips.layout();
     this.updateCamera();
@@ -110,7 +123,7 @@ export class GameScene extends Phaser.Scene {
 
     // Mirror state onto the views.
     const s = this.state;
-    this.heroView.sync(s, this.track.runSpeed, dt);
+    this.heroView.sync(s, runSpeedAt(this.world, s), dt);
     this.sidekick.sync(s.t, s.x, s.y, s.grounded, dt);
     for (const view of this.clouds.values()) view.sync(s.t);
     this.updateCamera();
@@ -175,6 +188,30 @@ export class GameScene extends Phaser.Scene {
       case 'checkpoint':
         this.levelView.reachCheckpoint(e.id);
         break;
+      case 'questionStart':
+        // The run never stops: the banner and bubbles simply appear ahead.
+        this.banner.show(e.question, e.attempt, this.hero.sidekickName, e.locks);
+        this.hud.setBannerHeight(this.banner.height);
+        this.bubbles.spawn(e.bubbles);
+        if (e.attempt === 0) speak(e.question.text);
+        else speak(`${this.hero.sidekickName} has a clue. ${e.question.clue.kind === 'text' ? e.question.clue.text : ''}`);
+        break;
+      case 'bubbleGrab':
+        sfx.play(e.correct ? 'lockOpen' : 'wrong');
+        this.bubbles.grab(e.bubbleId, e.correct);
+        break;
+      case 'questionMissed':
+        this.bubbles.vanish();
+        break;
+      case 'lockOpen':
+        this.banner.openLock(e.locks);
+        break;
+      case 'gateOpen':
+        sfx.play('gateOpen');
+        this.banner.hide();
+        this.hud.setBannerHeight(0);
+        this.gate.place(e.gateX, e.crystalX);
+        break;
       case 'finish':
         this.finish();
         break;
@@ -184,6 +221,8 @@ export class GameScene extends Phaser.Scene {
   private finish(): void {
     this.ending = true;
     getSfx().play('finish');
+    this.gate.collect();
+    const L = this.state.learning;
     const data: ResultData = {
       levelName: this.level.name,
       finished: true,
@@ -191,6 +230,12 @@ export class GameScene extends Phaser.Scene {
       shardsTotal: this.level.shards.length,
       starsCollected: this.state.starCount,
       starsTotal: this.level.stars.length,
+      gateOpened: L.locks >= QUESTIONS.locks,
+      questionsAsked: L.asked,
+      rightFirstTime: L.rightFirstTime,
+      cluesUsed: L.cluesUsed,
+      respawns: this.state.respawns,
+      skills: [...L.skills],
     };
     this.cameras.main.fadeOut(600, 255, 255, 255);
     this.time.delayedCall(700, () => this.scene.start(SCENES.result, data));

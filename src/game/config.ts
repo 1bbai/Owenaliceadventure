@@ -127,3 +127,31 @@ export const STAR_LAYOUT = {
   platformRowInset: 25,
   platformRowCount: 3,
 } as const;
+
+/** The learning stretch: questions asked while running, never a pause (see sim/learning.ts). */
+export const QUESTIONS = {
+  /** Run speed multiplier from the start of the question stretch to the end of the level. */
+  speedFactor: 0.85,
+  /** Answer bubbles float at this y (jump height). */
+  bubbleY: -92,
+  /** Seconds of running between the hero and the first bubble of a fresh question. */
+  firstBubbleSeconds: 3.0,
+  /** Seconds of running to the first bubble when the same question comes round again. */
+  retryFirstBubbleSeconds: 2.0,
+  /** Seconds of running between bubbles. */
+  bubbleGapSeconds: 1.15,
+  /** A bubble is grabbed when the hero's body centre is within this distance of it. */
+  grabRadius: 30,
+  /** Drawn bubble radius. */
+  bubbleRadius: 20,
+  /** Pause between a right answer and the next question. */
+  nextQuestionDelay: 0.7,
+  /** Locks on the star gate; one opens per right answer. */
+  locks: 3,
+  /** The gate is placed this far ahead of the hero when the last lock opens. */
+  gateAhead: 430,
+  /** The gate bars lift over this long. */
+  gateLiftSeconds: 0.9,
+  /** The star crystal sits this far past the gate; reaching it finishes the level. */
+  crystalPastGate: 190,
+} as const;

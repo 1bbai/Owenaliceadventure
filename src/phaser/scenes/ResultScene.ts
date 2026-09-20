@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { resultStars } from '../../game/scoring';
+import { grownUpsLine, resultStars } from '../../game/scoring';
 import { PALETTE } from '../palette';
 import { getSfx } from '../sfx';
 import { Button } from '../ui/Button';
@@ -16,6 +16,12 @@ export class ResultScene extends Phaser.Scene {
     shardsTotal: 3,
     starsCollected: 0,
     starsTotal: 0,
+    gateOpened: false,
+    questionsAsked: 0,
+    rightFirstTime: 0,
+    cluesUsed: 0,
+    respawns: 0,
+    skills: [],
   };
 
   constructor() {
@@ -48,21 +54,29 @@ export class ResultScene extends Phaser.Scene {
     const stars = resultStars(this.data$);
     const earned = [stars.finished, stars.allShards, stars.third];
     const labels = ['Finished the level', `Found ${this.data$.shardsFound} of ${this.data$.shardsTotal} shards`, stars.thirdLabel];
-    y += 82;
+    y += 70;
+    const starGap = Math.min(190, (panelW - 40) / 3);
     earned.forEach((on, i) => {
-      const x = cx + (i - 1) * 150;
+      const x = cx + (i - 1) * starGap;
       const star = this.add.star(x, y, 5, 16, 34, on ? PALETTE.star : PALETTE.checkpointOff).setStrokeStyle(3, on ? PALETTE.starEdge : PALETTE.cloudDark);
-      makeText(this, x, y + 48, labels[i]!, 'small');
+      fitText(makeText(this, x, y + 46, labels[i]!, 'small'), starGap - 8);
       if (on) {
         star.setScale(0);
         this.tweens.add({ targets: star, scaleX: 1, scaleY: 1, delay: 250 + i * 250, duration: 450, ease: 'Back.easeOut' });
       }
     });
 
-    y += 92;
+    y += 76;
     makeText(this, cx, y, `Stars collected: ${this.data$.starsCollected} of ${this.data$.starsTotal}`, 'heading');
 
-    y += 56;
+    // One small line for grown-ups: what was practised and how it went.
+    y += 30;
+    makeText(this, cx, y, grownUpsLine(this.data$), 'small', PALETTE.panelShadow, {
+      fontSize: '12px',
+      wordWrap: { width: panelW - 40 },
+    });
+
+    y += 50;
     const bw = Math.min(250, (panelW - 48) / 2);
     new Button(this, cx - bw / 2 - 8, y, {
       width: bw,

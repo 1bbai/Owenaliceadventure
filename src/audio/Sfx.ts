@@ -2,7 +2,19 @@
  * Synthesised sound effects with the Web Audio API. No audio files yet.
  * The AudioContext is created lazily on the first user gesture (browsers require that).
  */
-export type SfxName = 'jump' | 'dash' | 'float' | 'shard' | 'stomp' | 'respawn' | 'tap' | 'pitBounce' | 'finish';
+export type SfxName =
+  | 'jump'
+  | 'dash'
+  | 'float'
+  | 'shard'
+  | 'stomp'
+  | 'respawn'
+  | 'tap'
+  | 'pitBounce'
+  | 'finish'
+  | 'lockOpen'
+  | 'wrong'
+  | 'gateOpen';
 
 type Wave = OscillatorType;
 
@@ -117,6 +129,22 @@ export class Sfx {
         break;
       case 'finish':
         [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.3, { wave: 'triangle', gain: 0.4, delay: i * 0.12 }));
+        break;
+      case 'lockOpen':
+        // A lock clicks open, then a rising chime with a sparkle on top.
+        this.tone(300, 0.05, { wave: 'square', gain: 0.2 });
+        [660, 880, 1320].forEach((f, i) => this.tone(f, 0.22, { wave: 'triangle', gain: 0.38, delay: 0.05 + i * 0.09 }));
+        this.tone(2640, 0.3, { wave: 'sine', to: 3520, gain: 0.12, delay: 0.3 });
+        break;
+      case 'wrong':
+        // Soft and friendly: a gentle "hmm", never a buzzer.
+        this.tone(330, 0.16, { wave: 'sine', to: 290, gain: 0.22 });
+        this.tone(290, 0.18, { wave: 'sine', to: 260, gain: 0.18, delay: 0.14 });
+        break;
+      case 'gateOpen':
+        this.noise(0.3, 0.12);
+        this.tone(220, 0.9, { wave: 'triangle', to: 880, gain: 0.3 });
+        [784, 988, 1175, 1568].forEach((f, i) => this.tone(f, 0.35, { wave: 'triangle', gain: 0.35, delay: 0.5 + i * 0.1 }));
         break;
     }
   }
