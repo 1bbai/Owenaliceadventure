@@ -117,7 +117,7 @@ function rightAnswer(L: LearningState, heroX: number, events: SimEvent[]): void 
   L.level = nextLevel(L.level, L.attempt);
   L.locks += 1;
   L.bubbles = [];
-  events.push({ type: 'lockOpen', locks: L.locks });
+  events.push({ type: 'lockOpen', locks: L.locks, skill: L.question!.skill, attempt: L.attempt });
   if (L.locks >= QUESTIONS.locks) {
     L.phase = 'gate';
     L.gateX = heroX + QUESTIONS.gateAhead;

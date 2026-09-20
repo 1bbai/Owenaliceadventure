@@ -155,3 +155,28 @@ export const QUESTIONS = {
   /** The star crystal sits this far past the gate; reaching it finishes the level. */
   crystalPastGate: 190,
 } as const;
+
+/** Player profiles (device-local only; see profiles/store.ts). */
+export const PROFILES = {
+  /** Siblings and cousins share a tablet: this many profiles at most. */
+  max: 4,
+  /** Nicknames are cut to this many characters. */
+  nicknameMax: 12,
+  /** The learning log keeps this many most recent question results per profile. */
+  questionLog: 500,
+  /** The play-time log keeps this many most recent entries per profile. */
+  playLog: 200,
+  /** The grown-ups summary covers this many days. */
+  summaryDays: 7,
+  /** A skill needs this many questions in the window before the summary judges it. */
+  suggestMinQuestions: 3,
+  /** Right first time at or above this percentage counts as "going well". */
+  suggestSecurePct: 70,
+} as const;
+
+/** The grown-ups corner gate: "What is a × b?" typed on a number pad. */
+export const PARENT_GATE = {
+  /** Both factors are drawn from this range (tables the game itself never asks a child). */
+  minFactor: 6,
+  maxFactor: 9,
+} as const;

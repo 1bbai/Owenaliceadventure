@@ -3,8 +3,11 @@
 A kids' educational auto-running platformer for phones and tablets (landscape,
 ages 4 to 9). One control: tap to jump, hold to jump higher. Near the end of
 each level questions appear in a banner and the hero jumps into the right
-answer bubble; the game never pauses for a quiz. Built with TypeScript, Vite
-and Phaser 4. No ads, no tracking, no network calls.
+answer bubble; the game never pauses for a quiz. Up to four players share a
+device, each with their own stars and a learning log, and a grown-ups corner
+behind a times-table gate shows a plain 7-day summary per player. Built with
+TypeScript, Vite and Phaser 4. No ads, no tracking, no accounts, no network
+calls: everything is saved on the device only.
 
 See `CLAUDE.md` for the full design brief, tuning numbers, level format and
 working rules.
@@ -26,7 +29,7 @@ npm run preview    # serves dist/ locally
 ## Test and lint
 
 ```bash
-npm test           # Vitest: game rules, questions, level data and the headless completability proof (~20 s)
+npm test           # Vitest: game rules, questions, profiles, summary, level data and the headless completability proof (~20 s)
 npm run lint       # ESLint + TypeScript
 npm run check      # lint, test and build in one go; run this before pushing
 ```
@@ -45,7 +48,7 @@ Connect the repository to Netlify (or any static host) and deploy `dist/`.
 
 ## Project layout
 
-- `src/game/` — headless rules: config, tracks, heroes, level loading, star layout, simulation, questions, scoring
+- `src/game/` — headless rules: config, tracks, heroes, level loading, star layout, simulation, questions, scoring, profiles and the grown-ups summary
 - `src/data/levels/` — level JSON files
 - `src/phaser/` — scenes, placeholder views, UI, input
 - `src/audio/` — Web Audio sound synth

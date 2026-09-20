@@ -50,8 +50,10 @@ boxes.
   physics constants, tracks, heroes, level data, star generation, the
   simulation, scoring, viewport math.
 - No analytics, no network calls, no third-party SDKs, no fonts fetched from
-  the web. The only storage is `localStorage` for the child's hero, age, sound
-  and read-aloud choices (device-local, never sent anywhere).
+  the web. No accounts. The only storage is `localStorage`, device-local and
+  never sent anywhere: the player profiles (`src/game/profiles`, behind the
+  `KeyValueStore` interface so the backing store can be swapped) and the
+  device-wide sound and read-aloud choices (`src/phaser/session.ts`).
 - Sound effects are synthesised with the Web Audio API (`src/audio/Sfx.ts`);
   no audio files yet.
 - Text to speech: `speak(text)` in `src/phaser/speech.ts` reads each new
@@ -76,21 +78,29 @@ src/
     level/stars.ts        deterministic star layout from geometry
     level/geometry.ts     ground / gap / platform queries
     learning/questions.ts pure question generator (tracks, levels, choices, clues)
+    profiles/types.ts     Profile, Progress, LearningEntry, PlayEntry, RunRecord
+    profiles/store.ts     ProfileStore over a KeyValueStore (+ MemoryStore, parseProfilesData)
+    profiles/summary.ts   last-7-days summary per profile and the suggested next skill
+    profiles/gate.ts      the grown-ups gate question (6 to 9 times tables)
     sim/heroSim.ts        fixed-step simulation: stepSim(world, state, input, dt) -> events
     sim/learning.ts       the question stretch state machine, stepped by heroSim
     sim/events.ts         event union the renderer and audio react to
   data/levels/w1l1.json   World 1 Level 1 "Sunny Meadows 1"
   audio/Sfx.ts            Web Audio synth
   phaser/
-    scenes/TitleScene.ts  hero + age pick, Play
-    scenes/GameScene.ts   reads input, steps the sim, mirrors state to views
-    scenes/ResultScene.ts three stars, star count, grown-ups line, Play again / Change hero or age
+    scenes/TitleScene.ts  who is playing (tap to switch), hero pick, Play, Grown-ups
+    scenes/PlayersScene.ts up to 4 players on this device, New player
+    scenes/NewPlayerScene.ts name (on-screen letters), age band, hero
+    scenes/GrownUpsScene.ts number-pad gate, then summary / settings per player
+    scenes/GameScene.ts   reads input, steps the sim, mirrors state to views, records to the profile
+    scenes/ResultScene.ts three stars, star count, total + best line, grown-ups line, Play again / Change player or hero
     views/*               placeholder art: Parallax, LevelView, StarView, ShardView,
                           CloudView, HeroView, SidekickView, Burst (+ sparkle),
                           BubbleView (answer bubbles), GateView (star gate + crystal)
-    ui/*                  Button, Hud, TipStrip, QuestionBanner, text helpers
+    ui/*                  Button, Hud, TipStrip, QuestionBanner, KeyPad (letters / digits), Panel, text helpers
     input/JumpInput.ts    touch + mouse + keyboard -> one held flag
-    session.ts            hero / track / sound / speech choice (localStorage)
+    session.ts            device-wide sound / speech choice (localStorage)
+    storage.ts            localStorage adapter for the profile store, getProfiles()
     sfx.ts                shared Sfx instance and sound toggle
     speech.ts             speak(text) via speechSynthesis, read-aloud toggle
 tests/                    Vitest; tests/helpers/solver.ts is the headless level solver,
@@ -224,6 +234,75 @@ problems / Sharing equally.
   right first time x of y, clues used (the number of times a question came
   round again), retries from a checkpoint (respawns).
 
+## Player profiles and the grown-ups corner
+
+Everything lives on the device (`localStorage` key
+`owen-alice-adventure.profiles.v1`, one JSON document) behind
+`ProfileStore` in `src/game/profiles/store.ts`, which only talks to a
+three-method `KeyValueStore` (`get` / `set` / `remove`) so the backing store
+can be swapped later. `src/phaser/storage.ts` provides the localStorage
+adapter (memory fallback when storage is blocked) and the one shared store.
+Numbers live in `PROFILES` and `PARENT_GATE` in `config.ts`.
+
+### Profiles
+
+- A profile is a nickname (letters only, up to 12, shown as "Miah"), an age
+  band (the track) and a favourite hero. Up to 4 per device. Creating one
+  makes it the active player; the active player is remembered.
+- First launch (no profile) goes straight to the new-player screen: name on
+  a big on-screen A to Z keyboard (the device keyboard never pops up; a
+  physical keyboard also works), age band, hero, "Let's go!".
+- Title screen: "Who is playing?" shows the active player and their band;
+  tapping it opens the players list (2 x 2 grid, "New player" while there is
+  room). Hero buttons change the profile's favourite hero. The age band is
+  NOT on the title screen any more: it is set when a player is created and
+  changed only in the grown-ups corner.
+- The game scene reads hero and track from the active profile.
+
+### What is saved per profile (`Progress`)
+
+- `levels[levelId]`: best result stars (0 to 3), most stars collected in one
+  run, and every shard id ever found on that level.
+- `totalStars`: every star collected in every run, added up.
+- `questions`: rolling log (last 500) of `{ skill, firstTry, clues, at }`, one
+  entry per question answered right, written on the `lockOpen` event (which
+  now carries `skill` and `attempt`). `clues` is the number of retries that
+  question needed; `firstTry` is `clues === 0`. A question abandoned mid-level
+  is not logged.
+- `play`: rolling log (last 200) of `{ seconds, at }`. The game scene writes
+  the sim time played when the level ends, when Menu is pressed and when the
+  page goes to the background (`visibilitychange`).
+- `recordRun` is called from `GameScene.finish()` before the result screen,
+  so the result screen can show "Miah: 250 stars in total. Best on this
+  level: 2 of 3."
+- Loading is defensive (`parseProfilesData`): corrupt JSON, a wrong version
+  or broken profiles become an empty document or are dropped; broken entries
+  inside a profile are skipped; never more than 4 profiles load.
+
+### Grown-ups corner (`GrownUpsScene`)
+
+- Reached by the "Grown-ups" button next to Play. The gate is "What is
+  a × b?" with both factors from 6 to 9 (children are only ever asked tables
+  2 to 5), typed on a number pad (or a physical keyboard). A wrong answer
+  shows "Not quite. Try this one." with a fresh question. The question is
+  asked again every time the corner is opened.
+- Inside, a tab per player and two sections:
+  - **Last 7 days** (`summarise()` in `profiles/summary.ts`): headline
+    (questions, % right first time, clues used, minutes played), a table per
+    skill (questions, right first time x of y (%), clues), and a suggested
+    next skill (`suggestNextSkill()`): nothing practised -> start with the
+    band's first skill; no skill has 3 questions yet -> play more of the most
+    practised; any skill with 3+ questions under 70% right first time ->
+    practise the weakest again; otherwise the step above the highest skill
+    going well, or at the top of the ladder "keep going" naming the next age
+    band. Skills from another band are ignored when placing the child on the
+    ladder.
+  - **Settings**: age band (3 buttons), read-aloud voice on / off (device-wide,
+    the same toggle as the HUD button), "Reset progress" (keeps name, band
+    and hero; asks "Yes, reset / No") and "Remove player" (only while more
+    than one player exists; asks first). The privacy note reads: no accounts,
+    no network, everything saved only on this device and never leaves it.
+
 ## Level format
 
 Levels are JSON data files in `src/data/levels/`, validated by
@@ -263,16 +342,23 @@ last ground segment very long (Sunny Meadows 1 uses 90000). Levels without
 
 ## Screens
 
-- **Title**: game title, "Choose your hero" (Owen and Jackson / Alice and
-  Aliceson), "How old is the player?" (Age 4 to 5 / Age 6 to 7 / Age 8 to 9),
-  Play. Sentence case everywhere, buttons at least 52 units tall. Enter also plays.
+- **Title**: game title, "Who is playing?" with the active player's name and
+  band (tap to switch), "Choose your hero" (Owen and Jackson / Alice and
+  Aliceson), Play, and a smaller "Grown-ups" button. Sentence case
+  everywhere, big buttons. Enter also plays.
+- **Players**: "Who is playing?", up to four player buttons (name, band, star
+  total), Back, New player (or "Up to 4 players fit on one device").
+- **New player**: three steps: name on an on-screen keyboard, age band, hero.
+- **Grown-ups**: the number-pad gate, then the per-player summary and settings
+  (see "Player profiles and the grown-ups corner").
 - **Game**: parallax hills and sky, ground, platforms, stars, shards, clouds,
   checkpoint flags (turn orange when reached), hero with run cycle, sidekick
   trail, HUD (star count, shards "0 / 3", sound toggle, read-aloud toggle,
   Menu), tip strip, question banner, answer bubbles, star gate and crystal.
 - **Result**: three stars: finished the level / found all 3 shards / opened
-  the gate without a clue, stars collected out of the total, the "For
-  grown-ups" line, "Play again", "Change hero or age".
+  the gate without a clue, stars collected out of the total, the player's
+  total and best on this level, the "For grown-ups" line, "Play again",
+  "Change player or hero".
 
 ## Tests (`npm test`)
 
@@ -291,6 +377,13 @@ last ground segment very long (Sunny Meadows 1 uses 90000). Levels without
   down), one question missed entirely (retry with a clue), a tap cannot reach
   a bubble. `tests/helpers/learning.ts` is the scripted player: given a list
   of 'right' / 'wrong' / 'miss' it jumps at the chosen bubble.
+- `tests/profiles.test.ts`: the store over `MemoryStore`: create / limit of 4
+  / active fallback / update / reset / remove, best stars and shards merging,
+  star total, rolling logs, write-through and read-back, corrupt and foreign
+  data, nickname cleaning.
+- `tests/summary.test.ts`: the 7-day window, percentages, per-skill table,
+  minutes, and every branch of the suggested next skill.
+- `tests/gate.test.ts`: gate factors in range, exact-answer check.
 - `tests/completable.test.ts`: headless proof that Sunny Meadows 1 can be
   finished with all 3 shards and no respawn on all three tracks with both
   heroes. `tests/helpers/solver.ts` searches the "hop graph" (from each
@@ -313,7 +406,23 @@ last ground segment very long (Sunny Meadows 1 uses 90000). Levels without
   cleanly on the far side.
 - Respawn has no camera flash (gentler on young eyes); the hero just blinks
   and the sidekick teleports beside them.
-- The hero, age and sound choices are remembered in localStorage only.
+- Sound and the read-aloud voice are device-wide settings, not per profile
+  (a shared tablet has one speaker). Hero and age band are per profile.
+- Nicknames are letters only (A to Z on the on-screen keyboard), shown with
+  the first letter capitalised, so a 5-year-old can type one without a device
+  keyboard covering the landscape view.
+- "Remove player" was added alongside "Reset progress" (not in the brief)
+  because with a hard limit of 4 there would otherwise be no way to make room
+  for a new cousin; the last remaining player can only be reset, not removed.
+- The grown-ups gate uses the 6 to 9 tables because track 2 children practise
+  factors 2 to 5 in the game itself.
+- The learning log records only questions that were answered right (every
+  question is eventually answered right or the level is quit), with the
+  number of clue retries it took; per-question dates make the 7-day window
+  possible.
+- Play time is sim time (pauses in portrait do not count) and is saved in
+  chunks so closing the app mid-level loses at most the time since the last
+  save (level end, Menu, or the page going to the background).
 - Levels with a question stretch end at the star crystal; `endX` there only
   marks where the pre-question level would have ended. Levels without
   `questionStartX` keep the plain finish line at `endX`.
@@ -378,3 +487,25 @@ provides).
 Open questions: should the difficulty level carry over between runs; spelling
 questions for a later world; whether the crystal should also award a bonus of
 stars.
+
+### Session 3 (player profiles and the grown-ups corner)
+
+Built: the profile store (`game/profiles/store.ts`) over a swappable
+key-value interface with the localStorage adapter in `phaser/storage.ts`;
+up to 4 profiles (nickname, age band, favourite hero) with best stars per
+level, shards found, star total, a rolling learning log and a play-time log;
+the new-player flow with an on-screen keyboard; the players list; the title
+screen now shows who is playing; the grown-ups corner behind a 6-to-9 times
+table gate with the 7-day summary, suggested next skill, age band, reset,
+remove and voice controls, and the privacy note; the result screen shows the
+running total; `lockOpen` events carry the skill and attempt; tests for the
+store, summary and gate. Walked through every screen in Chromium at 640 x
+300 and 1024 x 768 with a scripted browser session.
+
+Play-test next: whether the on-screen keyboard keys (about 46 units) are big
+enough for small fingers; whether children are drawn to the Grown-ups button
+and how the gate feels; the summary table on a real 520-wide phone.
+
+Open questions: a level select once more levels exist (best stars per level
+are already stored); whether a profile should carry its difficulty level
+between runs; a nickname edit in the grown-ups corner.

@@ -22,7 +22,7 @@ export type SimEvent =
   | { type: 'bubbleGrab'; bubbleId: number; correct: boolean }
   /** The hero ran under all three bubbles. */
   | { type: 'questionMissed' }
-  /** A lock on the star gate opened (1-based count of open locks). */
-  | { type: 'lockOpen'; locks: number }
+  /** A lock on the star gate opened (1-based count of open locks), with the skill practised and how many misses it took. */
+  | { type: 'lockOpen'; locks: number; skill: string; attempt: number }
   /** All locks are open: the gate and the crystal are placed ahead. */
   | { type: 'gateOpen'; gateX: number; crystalX: number };

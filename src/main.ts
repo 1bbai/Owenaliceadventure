@@ -1,6 +1,9 @@
 import Phaser from 'phaser';
 import { isPortrait, logicalViewSize } from './game/viewport';
 import { GameScene } from './phaser/scenes/GameScene';
+import { GrownUpsScene } from './phaser/scenes/GrownUpsScene';
+import { NewPlayerScene } from './phaser/scenes/NewPlayerScene';
+import { PlayersScene } from './phaser/scenes/PlayersScene';
 import { ResultScene } from './phaser/scenes/ResultScene';
 import { TitleScene } from './phaser/scenes/TitleScene';
 
@@ -18,7 +21,7 @@ const game = new Phaser.Game({
   },
   render: { antialias: true, roundPixels: false },
   input: { activePointers: 2 },
-  scene: [TitleScene, GameScene, ResultScene],
+  scene: [TitleScene, PlayersScene, NewPlayerScene, GrownUpsScene, GameScene, ResultScene],
 });
 
 /** Landscape only: in portrait, show the "turn your device" screen and pause the game. */

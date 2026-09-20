@@ -11,3 +11,4 @@ export * from './sim/events';
 export * from './sim/heroSim';
 export * from './sim/learning';
 export * from './learning/questions';
+export * from './profiles';

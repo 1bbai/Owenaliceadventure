@@ -3,6 +3,7 @@ import { grownUpsLine, resultStars } from '../../game/scoring';
 import { PALETTE } from '../palette';
 import { getSfx } from '../sfx';
 import { Button } from '../ui/Button';
+import { menuPanel } from '../ui/Panel';
 import { fitText, makeText } from '../ui/text';
 import { Parallax } from '../views/Parallax';
 import { SCENES, type ResultData } from './keys';
@@ -22,6 +23,9 @@ export class ResultScene extends Phaser.Scene {
     cluesUsed: 0,
     respawns: 0,
     skills: [],
+    nickname: 'Player',
+    totalStars: 0,
+    bestStars: 0,
   };
 
   constructor() {
@@ -34,21 +38,14 @@ export class ResultScene extends Phaser.Scene {
 
   create(): void {
     const w = this.scale.width;
-    const h = this.scale.height;
     const cx = w / 2;
     new Parallax(this);
     this.cameras.main.fadeIn(400, 255, 255, 255);
 
-    const panelW = Math.min(w - 24, 600);
-    const panelH = Math.min(h - 16, 318);
-    const cy = h / 2 - 6;
-    const panel = this.add.graphics();
-    panel.fillStyle(PALETTE.panelShadow, 0.35);
-    panel.fillRoundedRect(cx - panelW / 2, cy - panelH / 2 + 5, panelW, panelH, 22);
-    panel.fillStyle(PALETTE.panel, 0.94);
-    panel.fillRoundedRect(cx - panelW / 2, cy - panelH / 2, panelW, panelH, 22);
+    const panel = menuPanel(this, 600);
+    const panelW = panel.width;
 
-    let y = cy - panelH / 2 + 34;
+    let y = panel.top + 34;
     fitText(makeText(this, cx, y, `${this.data$.levelName} done!`, 'title'), panelW - 40);
 
     const stars = resultStars(this.data$);
@@ -69,14 +66,23 @@ export class ResultScene extends Phaser.Scene {
     y += 76;
     makeText(this, cx, y, `Stars collected: ${this.data$.starsCollected} of ${this.data$.starsTotal}`, 'heading');
 
+    // The player's running total and their best on this level (saved on this device only).
+    y += 24;
+    fitText(
+      makeText(this, cx, y, `${this.data$.nickname}: ${this.data$.totalStars} stars in total. Best on this level: ${this.data$.bestStars} of 3.`, 'small', PALETTE.text, {
+        fontSize: '13px',
+      }),
+      panelW - 40,
+    );
+
     // One small line for grown-ups: what was practised and how it went.
-    y += 30;
+    y += 26;
     makeText(this, cx, y, grownUpsLine(this.data$), 'small', PALETTE.panelShadow, {
       fontSize: '12px',
       wordWrap: { width: panelW - 40 },
     });
 
-    y += 50;
+    y += 46;
     const bw = Math.min(250, (panelW - 48) / 2);
     new Button(this, cx - bw / 2 - 8, y, {
       width: bw,
@@ -91,7 +97,7 @@ export class ResultScene extends Phaser.Scene {
     new Button(this, cx + bw / 2 + 8, y, {
       width: bw,
       height: 54,
-      label: 'Change hero or age',
+      label: 'Change player or hero',
       onPress: () => {
         getSfx().play('tap');
         this.scene.start(SCENES.title);

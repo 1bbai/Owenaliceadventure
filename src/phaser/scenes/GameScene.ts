@@ -6,11 +6,12 @@ import type { Level } from '../../game/level/types';
 import { loadFirstLevel } from '../../game/levels';
 import type { SimEvent } from '../../game/sim/events';
 import { createSimState, runSpeedAt, stepSim, type SimState, type SimWorld } from '../../game/sim/heroSim';
+import { countEarned, resultStars } from '../../game/scoring';
 import { getTrack, type Track } from '../../game/tracks';
 import { cameraScrollX, groundScreenY } from '../../game/viewport';
 import { JumpInput } from '../input/JumpInput';
-import { getSession } from '../session';
 import { getSfx } from '../sfx';
+import { getProfiles } from '../storage';
 import { speak, stopSpeaking } from '../speech';
 import { Hud } from '../ui/Hud';
 import { QuestionBanner } from '../ui/QuestionBanner';
@@ -54,16 +55,26 @@ export class GameScene extends Phaser.Scene {
   private bubbles!: BubbleField;
   private gate!: GateView;
   private ending = false;
+  /** The player this run is recorded against. */
+  private profileId = '';
+  /** Sim time already written to the play log. */
+  private playSaved = 0;
 
   constructor() {
     super(SCENES.game);
   }
 
   create(): void {
-    const session = getSession();
+    const profile = getProfiles().active();
+    if (!profile) {
+      this.scene.start(SCENES.title);
+      return;
+    }
+    this.profileId = profile.id;
+    this.playSaved = 0;
     this.level = loadFirstLevel();
-    this.track = getTrack(session.track);
-    this.hero = getHero(session.hero);
+    this.track = getTrack(profile.track);
+    this.hero = getHero(profile.hero);
     this.world = { level: this.level, track: this.track, hero: this.hero, seed: Math.floor(Math.random() * 0xffffffff) };
     this.state = createSimState(this.world);
     this.accumulator = 0;
@@ -88,8 +99,15 @@ export class GameScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor(0x7ec8f2);
     this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize, this);
+    // Play time is saved when the level ends and when the app goes to the background.
+    const onHidden = (): void => {
+      if (document.visibilityState === 'hidden') this.savePlayTime();
+    };
+    document.addEventListener('visibilitychange', onHidden);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);
+      document.removeEventListener('visibilitychange', onHidden);
+      this.savePlayTime();
       stopSpeaking();
     });
     this.updateCamera();
@@ -205,6 +223,7 @@ export class GameScene extends Phaser.Scene {
         break;
       case 'lockOpen':
         this.banner.openLock(e.locks);
+        getProfiles().recordQuestion(this.profileId, { skill: e.skill, firstTry: e.attempt === 0, clues: e.attempt });
         break;
       case 'gateOpen':
         sfx.play('gateOpen');
@@ -218,13 +237,20 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** Writes the sim time played since the last save to the profile's play log. */
+  private savePlayTime(): void {
+    const seconds = this.state.t - this.playSaved;
+    if (seconds <= 0) return;
+    this.playSaved = this.state.t;
+    getProfiles().recordPlay(this.profileId, seconds);
+  }
+
   private finish(): void {
     this.ending = true;
     getSfx().play('finish');
     this.gate.collect();
     const L = this.state.learning;
-    const data: ResultData = {
-      levelName: this.level.name,
+    const outcome = {
       finished: true,
       shardsFound: this.state.shardCount,
       shardsTotal: this.level.shards.length,
@@ -236,6 +262,20 @@ export class GameScene extends Phaser.Scene {
       cluesUsed: L.cluesUsed,
       respawns: this.state.respawns,
       skills: [...L.skills],
+    };
+    const shardIds = [...this.state.shards].flatMap((found, id) => (found ? [id] : []));
+    const profile = getProfiles().recordRun(this.profileId, {
+      levelId: this.level.id,
+      stars: countEarned(resultStars(outcome)),
+      starsCollected: outcome.starsCollected,
+      shardIds,
+    });
+    const data: ResultData = {
+      ...outcome,
+      levelName: this.level.name,
+      nickname: profile.nickname,
+      totalStars: profile.progress.totalStars,
+      bestStars: profile.progress.levels[this.level.id]?.bestStars ?? 0,
     };
     this.cameras.main.fadeOut(600, 255, 255, 255);
     this.time.delayedCall(700, () => this.scene.start(SCENES.result, data));

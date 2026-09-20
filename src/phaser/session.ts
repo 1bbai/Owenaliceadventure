@@ -1,14 +1,10 @@
-import type { HeroId } from '../game/heroes';
-import type { TrackId } from '../game/tracks';
-
 /**
- * Player choices for this visit. Kept in memory and mirrored to localStorage
- * (device-local only, never sent anywhere) so a child does not have to
- * re-pick their hero and age every time.
+ * Device-wide settings: sound and the read-aloud voice. Kept in memory and
+ * mirrored to localStorage (device-local only, never sent anywhere). Who is
+ * playing, their age band and favourite hero live in the profile store
+ * (`storage.ts`), not here.
  */
 export interface Session {
-  hero: HeroId;
-  track: TrackId;
   sound: boolean;
   /** Read each new question aloud with the browser's speech synthesis. */
   speech: boolean;
@@ -16,7 +12,7 @@ export interface Session {
 
 const KEY = 'owen-alice-adventure.session.v1';
 
-const DEFAULTS: Session = { hero: 'alice', track: 0, sound: true, speech: true };
+const DEFAULTS: Session = { sound: true, speech: true };
 
 let current: Session | null = null;
 
@@ -26,8 +22,6 @@ function read(): Session {
     if (!raw) return { ...DEFAULTS };
     const parsed = JSON.parse(raw) as Partial<Session>;
     return {
-      hero: parsed.hero === 'owen' || parsed.hero === 'alice' ? parsed.hero : DEFAULTS.hero,
-      track: parsed.track === 0 || parsed.track === 1 || parsed.track === 2 ? parsed.track : DEFAULTS.track,
       sound: typeof parsed.sound === 'boolean' ? parsed.sound : DEFAULTS.sound,
       speech: typeof parsed.speech === 'boolean' ? parsed.speech : DEFAULTS.speech,
     };
